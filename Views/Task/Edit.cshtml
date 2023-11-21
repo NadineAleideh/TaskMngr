@@ -1,0 +1,105 @@
+﻿@model TaskMngr.Models.Tsk
+
+@{
+    ViewData["Title"] = "Task";
+}
+
+<style>
+    .card {
+        width: 60%;
+        margin-left: 20%;
+        margin-top: 5%;
+    }
+</style>
+
+<div class="card">
+    <div class="card-header text-center"><h4>Edit Task</h4></div>
+    <div id="form-container" class="card-body">
+        <div class="row">
+            <form id="editTaskForm" asp-controller="Task" asp-action="Edit">
+                <partial name="TaskForm">
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("loadTaskData called");
+            loadTaskData();
+
+            function loadTaskData() {
+                $.ajax({
+                    url: '@Url.Action("GetTask", "Task")',
+                    type: 'GET',
+                    data: { id: @Model.Id },
+                    success: function (data) {
+                        console.log(data);
+
+                        $('#Name').val(data.Name);
+                        $('#Description').val(data.Description);
+                    },
+                    error: function (xhr) {
+                        console.error(xhr.statusText);
+                        alert('Error loading task data.');
+                    }
+                });
+            }
+
+            $('#editTaskForm').submit(function (e) {
+                e.preventDefault();
+
+                if (validateForm()) {
+                    $.ajax({
+                        url: '@Url.Action("EditTask", "Task")',
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function (data) {
+                            window.location.href = '/task';
+                            alert('Saved Successfully.');
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 400) {
+                                $('#form-container').html(xhr.responseText);
+                            } else {
+                                alert('Failed to save.');
+
+                            }
+                        }
+                    });
+                }
+            });
+
+            function validateForm() {
+                var isValid = true;
+
+                var name = $('#Name').val();
+                if (!name) {
+                    $('#Name').addClass('border-danger');
+                    $('#NameError').text('Name is required.');
+                    isValid = false;
+                } else {
+                    $('#Name').removeClass('border-danger');
+                    $('#NameError').text('');
+                }
+
+                var description = $('#Description').val();
+                if (!description) {
+                    $('#Description').addClass('border-danger');
+                    $('#DescriptionError').text('Description is required.');
+                    isValid = false;
+                } else {
+                    $('#Description').removeClass('border-danger');
+                    $('#DescriptionError').text('');
+                }
+
+                return isValid;
+            }
+        });
+    </script>
+}
+

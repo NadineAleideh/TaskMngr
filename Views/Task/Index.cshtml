@@ -1,0 +1,34 @@
+﻿
+<p>
+    <a class="btn btn-outline-success" asp-action="Add">Add New Task</a>
+</p>
+
+<div class="card">
+    <div id="taskListContainer">
+        <!-- To load all Tasks here dynamically -->
+    </div>
+</div>
+
+
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadTasks();
+
+            function loadTasks() {
+                $.ajax({
+                    url: '@Url.Action("LoadTasks", "Task")',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#taskListContainer').html(data);
+                    },
+                    error: function () {
+                        alert('Error loading tasks.');
+                    }
+                });
+            }
+        });
+    </script>
+}

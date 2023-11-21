@@ -1,0 +1,83 @@
+﻿@model TaskMngr.Models.Tsk
+
+@{
+    ViewData["Title"] = "Add Task";
+}
+
+<style>
+    .card {
+        width: 60%;
+        margin-left: 20%;
+        margin-top: 5%
+    }
+</style>
+
+<div class="card">
+    <div class="card-header text-center"><h4>New Task</h4></div>
+    <div id="form-container" class="card-body">
+        <form id="addTaskForm" asp-controller="Task" asp-action="Add">
+            <partial name="TaskForm">
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#addTaskForm').submit(function (e) {
+                e.preventDefault();
+
+                // Validate form fields
+                if (validateForm()) {
+                    $.ajax({
+                        url: '@Url.Action("AddTask", "Task")',
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function (data) {
+                            $('#form-container').html(data);
+                            window.location.href = '/task';
+                            alert('Added Successfully.');
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 400) {
+                                $('#form-container').html(xhr.responseText);
+                            } else {
+                                alert('Failed to Add.');
+                            }
+                        }
+                    });
+                }
+            });
+
+            function validateForm() {
+                // client-side validation
+                var isValid = true;
+
+                // Check if the Name field is empty
+                var name = $('#Name').val();
+                if (!name) {
+                    $('#Name').addClass('border-danger');
+                    $('#NameError').text('Name is required.');
+                    isValid = false;
+                } else {
+                    $('#Name').removeClass('border-danger');
+                    $('#NameError').text('');
+                }
+
+                // Check if the Description field is empty
+                var description = $('#Description').val();
+                if (!description) {
+                    $('#Description').addClass('border-danger');
+                    $('#DescriptionError').text('Description is required.');
+                    isValid = false;
+                } else {
+                    $('#Description').removeClass('border-danger');
+                    $('#DescriptionError').text('');
+                }
+
+                return isValid;
+            }
+        });
+    </script>
+}
